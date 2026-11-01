@@ -107,6 +107,9 @@ Le moteur est comparé aux solutions analytiques : ouvrir `tests/index.html`, ou
 | `js/circuit.js` | Catalogue des composants, compilation de la grille en nœuds, unités |
 | `js/engine.js` | Simulation, historique, régime permanent, modes propres |
 | `js/library.js` | Bibliothèque de circuits |
+| `js/guides.js` | Parcours guidés de la bibliothèque |
+| `js/devices.js` | Onglet Composants : géométrie et solutions exactes |
+| `js/anatomy.js` | Onglet Composants : dessins, animations et commentaires |
 | `js/render.js` | Dessin du circuit |
 | `js/scope.js` | Graphiques |
 | `js/editor.js` | Interactions sur la grille |
