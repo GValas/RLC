@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Tests du moteur RLC</title>
+  <style>
+    body { font: 14px system-ui, sans-serif; margin: 24px; }
+    li.ok::marker { content: "✓ "; color: #1a7f4d; }
+    li.fail::marker { content: "✗ "; color: #b3261e; }
+    pre { color: #b3261e; margin: 2px 0 8px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1 id="title">Tests du moteur</h1>
+  <ul id="list"></ul>
+  <script src="../js/linalg.js"></script>
+  <script src="../js/circuit.js"></script>
+  <script src="../js/engine.js"></script>
+  <script src="../js/library.js"></script>
+  <script src="../js/guides.js"></script>
+  <script src="../js/devices.js"></script>
+  <script src="tests.js"></script>
+  <script>
+    const results = window.RLC_TEST_RESULTS;
+    const list = document.getElementById('list');
+    for (const r of results) {
+      const li = document.createElement('li');
+      li.className = r.ok ? 'ok' : 'fail';
+      li.textContent = r.name;
+      if (!r.ok) { const p = document.createElement('pre'); p.textContent = r.msg; li.append(p); }
+      list.append(li);
+    }
+    const failed = results.filter((r) => !r.ok).length;
+    document.getElementById('title').textContent = `${results.length - failed} réussis, ${failed} échoués`;
+  </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Circuits RLC</title>
+  <meta name="description" content="Construire un circuit RLC sur une grille et observer ses régimes transitoire et permanent.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23b4432b' stroke-width='2.4' d='M1 12h4l2-6 4 12 4-12 4 12 2-6h2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <span class="brand">Circuits RLC</span>
+    <div class="tabs" role="tablist" aria-label="Sections de l'application">
+      <button role="tab" data-tab="circuit" aria-selected="true">Circuit</button>
+      <button role="tab" data-tab="components" aria-selected="false">Composants</button>
+    </div>
+    <input id="docName" class="doc-name" aria-label="Nom du circuit" maxlength="60">
+    <nav class="actions">
+      <button id="btnNew" title="Nouveau circuit vide">Nouveau</button>
+      <button id="btnLibrary" title="Circuits de base prêts à l'emploi">Bibliothèque</button>
+      <button id="btnMine" title="Circuits enregistrés dans ce navigateur">Mes circuits</button>
+      <button id="btnSave" title="Enregistrer dans ce navigateur (Ctrl+S)">Enregistrer</button>
+      <span class="sep"></span>
+      <button id="btnExport" title="Télécharger le circuit en fichier JSON">Exporter</button>
+      <button id="btnImport" title="Ouvrir un fichier JSON">Importer</button>
+      <input id="fileImport" type="file" accept=".json,application/json" hidden>
+      <span class="sep"></span>
+      <button id="btnUndo" title="Annuler (Ctrl+Z)" aria-label="Annuler">↶</button>
+      <button id="btnRedo" title="Rétablir (Ctrl+Y)" aria-label="Rétablir">↷</button>
+      <button id="btnTheme" title="Changer de thème" aria-label="Changer de thème">◐</button>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <aside class="palette" aria-label="Composants">
+      <h2>Outils</h2>
+      <div class="tools" id="tools"></div>
+      <h2>Composants</h2>
+      <div class="tools" id="parts"></div>
+      <p class="tip">Glissez un composant sur la grille, tirez un fil depuis une borne. <kbd>R</kbd> tourne, <kbd>Suppr</kbd> efface.</p>
+    </aside>
+
+    <section class="stage" id="stage">
+      <canvas id="board" aria-label="Plan du circuit"></canvas>
+      <div class="stage-msg" id="stageMsg" hidden></div>
+      <div class="stage-badge" id="stageBadge" hidden></div>
+      <div class="tooltip" id="boardTip" hidden></div>
+      <div class="zoom">
+        <button id="btnValues" title="Afficher u et i, avec leurs flèches, sur tous les composants" aria-pressed="false">Valeurs</button>
+        <button id="zoomOut" aria-label="Dézoomer">−</button>
+        <button id="zoomFit" title="Cadrer le circuit">Cadrer</button>
+        <button id="zoomIn" aria-label="Zoomer">+</button>
+      </div>
+    </section>
+
+    <aside class="inspector" id="inspector" aria-label="Propriétés"></aside>
+
+    <section class="bench">
+      <div class="transport">
+        <button id="btnPower" class="power" aria-pressed="false">Mise sous tension</button>
+        <div class="play">
+          <button id="btnStart" title="Retour à t = 0 (Début)" aria-label="Retour à t = 0">⏮</button>
+          <button id="btnBack" title="Lecture arrière" aria-label="Lecture arrière">◀</button>
+          <button id="btnPause" title="Pause (Espace)" aria-label="Pause">❚❚</button>
+          <button id="btnFwd" title="Lecture avant" aria-label="Lecture avant">▶</button>
+        </div>
+        <div class="readout"><span class="lbl">t =</span> <output id="tNow">0 s</output></div>
+        <input id="timeline" class="timeline" type="range" min="0" max="1000" value="0" step="1" aria-label="Position dans le temps">
+        <div class="speed">
+          <label for="speed">Vitesse</label>
+          <input id="speed" type="range" min="-9" max="2" step="0.01" value="-3">
+          <output id="speedOut">1 ms/s</output>
+          <button id="btnAuto" title="Adapter vitesse et fenêtre au circuit">Auto</button>
+        </div>
+        <div class="regime" id="regime" data-kind="off">Hors tension</div>
+      </div>
+      <div class="probes" id="probes"></div>
+      <div class="scope-wrap" id="scopeWrap">
+        <canvas id="scope" aria-label="Graphiques de tension et de courant"></canvas>
+        <div class="tooltip" id="tooltip" hidden></div>
+      </div>
+    </section>
+  </main>
+
+  <section class="anatomy" id="anatomy" aria-label="Comment fonctionnent les composants" hidden></section>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <dialog id="dlgLibrary" class="sheet" aria-labelledby="libTitle">
+    <header><h2 id="libTitle">Bibliothèque de circuits</h2><button data-close aria-label="Fermer">×</button></header>
+    <div class="sheet-body" id="libBody"></div>
+  </dialog>
+
+  <dialog id="dlgMine" class="sheet" aria-labelledby="mineTitle">
+    <header><h2 id="mineTitle">Mes circuits</h2><button data-close aria-label="Fermer">×</button></header>
+    <div class="sheet-body" id="mineBody"></div>
+  </dialog>
+
+  <script src="js/linalg.js"></script>
+  <script src="js/circuit.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/library.js"></script>
+  <script src="js/guides.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/scope.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/devices.js"></script>
+  <script src="js/anatomy.js"></script>
+</body>
+</html>
